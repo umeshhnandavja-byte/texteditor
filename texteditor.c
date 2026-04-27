@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <termios.h>
 
+#define CTRL_KEY(k) ((k) & 0x1f)
+
 struct termios orig_termios;
 
 void die(const char *s){
@@ -38,29 +40,34 @@ void enableRawMode(){
     }
 }
 
+char editorreadkey(){
+    int nread;
+    char c;
+    while((nread = read(STDIN_FILENO, &c, 1) != 1)){
+        if(nread == -1 && errno != EAGAIN){
+            die("read");
+        }
+    }
+    return c;
+}
+
+void editorprocesskeypress(){
+    char c = editorreadkey();
+
+    switch(c){
+        case CTRL_KEY('q'):
+        exit(0);
+        break;
+    }
+}
+
 int main(){
 
     enableRawMode();
 
     while(1){
-        char c = '\0';
-        read(STDIN_FILENO, &c, 1);
-        while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q'){
-            if(read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN){
-                die("tcseattr");
-            }
-            if(iscntrl(c)){
-                printf("%d\r\n", c);
-            }
-            else{
-                printf("%d ('%c')\r\n");
-            }
-            if(c == 'q'){
-                break;
-            }
-        }
-        disableRawMode();
-        return 0;
-
+        editorprocesskeypress();    
     }
+
+    return 0;
 }
