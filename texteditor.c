@@ -2,12 +2,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <termios.h>
 
 #define CTRL_KEY(k) ((k) & 0x1f)
+struct editorconfig{
+    struct termios orig_termios;
+};
 
-struct termios orig_termios;
+struct editorconfig e;
 
 void die(const char *s){
     write(STDOUT_FILENO, "\x1b[2J", 4);
@@ -18,14 +22,14 @@ void die(const char *s){
 }
 
 void disableRawMode(){
-    if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1){
+    if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &e.orig_termios) == -1){
         die("tcsetattr");
     }
 }
 
 void enableRawMode(){
 
-    struct termios raw = orig_termios;
+    struct termios raw = e.orig_termios;
 
     if(tcgetattr(STDIN_FILENO, &raw) == -1){
         die("tcgetattr");
@@ -54,6 +58,10 @@ char editorreadkey(){
     return c;
 }
 
+int getWindowsSize(int *rows, int *cols){
+    ~
+}
+
 void editorprocesskeypress(){
     char c = editorreadkey();
 
@@ -74,12 +82,12 @@ void editordrawrows(){
 }
 
 void editorrefreshscreen(){
-    write(STDOUT_FILENO, "\x1b[2J", 4);
-    write(STDOUT_FILENO, "\x1b[H", 3);
+    write(STDOUT_FILENO, "\x1b[2J" , 4);
+    write(STDOUT_FILENO, "\x1b[H" , 3);
 
     editordrawrows();
 
-    write(STDOUT_FILENO, "\x1b[H", 3);
+    write(STDOUT_FILENO, "\x1b[H" , 3);
 }
 
 int main(){
