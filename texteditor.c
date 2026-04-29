@@ -58,9 +58,6 @@ char editorreadkey(){
     return c;
 }
 
-int getWindowsSize(int *rows, int *cols){
-    ~
-}
 
 void editorprocesskeypress(){
     char c = editorreadkey();
