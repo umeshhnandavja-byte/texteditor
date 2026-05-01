@@ -16,7 +16,7 @@ struct editorconfig{
 struct editorconfig e;
 
 void initEditor() {
-    if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
+    if (getWindowSize(&e.screenrows, &e.screencols) == -1) die("getWindowSize");
 }
 
 
